@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import "./App.css"
 import {IoCodeSlash, IoSend} from "react-icons/io5";
 import {BiPlanet} from "react-icons/bi";
@@ -6,10 +6,11 @@ import {FaPython} from "react-icons/fa";
 import {TbMessageChatbot} from "react-icons/tb";
 
 const App: React.FC = () => {
+    const [message, setMessage] = useState<string>("");
     return (
         <>
             <main className={"container  min-w-full min-h-screen overflow-x-hidden bg-[#0E0E0E] text-white"}>
-                <section className={"middle min-h-[70vh] flex items-center justify-center flex-col"}>
+                <section className={"middle min-h-[80vh] flex items-center justify-center flex-col"}>
                     <h2 className={"text-4xl"}>Smart Talk </h2>
                     <div className={"boxes mt-[30px] flex items-center gap-2"}>
                         <div
@@ -55,12 +56,16 @@ const App: React.FC = () => {
                             placeholder={"Write your message here..."}
                             id={"messageBox"}
                             className={"p-[10px] bg-transparent flex-1 outline-0 border-none text-white pl-[15px]"}
+                            onChange={(e) => setMessage(e.target.value)}
                         />
-                        <i className={"text-green-500 text-[20px] mr-5 cursor-pointer"}>
-                            <IoSend/>
-                        </i>
+                        {
+                            message === "" ? "" : <i className={"text-green-500 text-[20px] mr-5 cursor-pointer"}>
+                                <IoSend/>
+                            </i>
+                        }
                     </div>
-                    <p className={"text-[gray] text-[14px] my-4"}>AssistMe is developed by Mo. Mahdi Farooqui. this AI
+                    <p className={"text-[gray] text-[14px] my-4"}>Smart Talk is developed by <a
+                        href={"https://linkedin.com/in/aryankumarofficial"} target={"_blank"}>Aryan Kumar</a>. this AI
                         use the gemini API for giving
                         the
                         response </p>
