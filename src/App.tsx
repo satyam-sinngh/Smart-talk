@@ -4,10 +4,44 @@ import {IoCodeSlash, IoSend} from "react-icons/io5";
 import {BiPlanet} from "react-icons/bi";
 import {FaPython} from "react-icons/fa";
 import {TbMessageChatbot} from "react-icons/tb";
+import {GoogleGenerativeAI} from "@google/generative-ai"
+
+interface IAnswer {
+    type: string;
+    text: string;
+}
 
 const App: React.FC = () => {
     const [message, setMessage] = useState<string>("");
-    const [isResponseScreen, setIsResponseScreen] = useState<boolean>(true);
+    const [isResponseScreen, setIsResponseScreen] = useState<boolean>(false);
+    const [response, setResponse] = useState<IAnswer[]>([]);
+
+    const generateResponse = async (message: string) => {
+        const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({model: "gemini-1.5-flash"});
+        const result = await model.generateContent(message);
+        const newResponses = [
+            ...response,
+            {
+                type: "userMsg",
+                text: message,
+            }, {
+                type: "response",
+                text: result.response.text(),
+            }
+        ];
+        setResponse(newResponses);
+        setIsResponseScreen(true);
+        setMessage("");
+        console.log(result.response.text());
+    };
+    const hitRequest = () => {
+        if (message) {
+            generateResponse(message);
+        } else {
+            alert("message empty!!!!")
+        }
+    }
     return (
         <>
             <main className={"container  min-w-full min-h-screen overflow-x-hidden bg-[#0E0E0E] text-white"}>
@@ -25,8 +59,15 @@ const App: React.FC = () => {
                                 </button>
                             </div>
                             <div className={"message"}>
-                                <div className={"userMsg"}>What does server rendering means?</div>
-                                <div className={"response"}>What does server rendering means?</div>
+                                {
+                                    response?.map((msg, index) => {
+                                        return (
+                                            <div key={index} className={`${msg.type}`}>{msg.text}</div>
+                                        )
+                                    })
+                                }
+                                {/*<div className={"userMsg"}>What does server rendering means?</div>*/}
+                                {/*<div className={"response"}>What does server rendering means?</div>*/}
                             </div>
 
                         </section> :
@@ -73,6 +114,7 @@ const App: React.FC = () => {
                     <div
                         className={"inputBox flex items-center bg-[#181818] rounded-[30px] w-[60%] text-[15px] py-[7px]"}>
                         <input
+                            value={message}
                             type={"text"}
                             placeholder={"Write your message here..."}
                             id={"messageBox"}
@@ -80,9 +122,10 @@ const App: React.FC = () => {
                             onChange={(e) => setMessage(e.target.value)}
                         />
                         {
-                            message === "" ? "" : <i className={"text-green-500 text-[20px] mr-5 cursor-pointer"}>
-                                <IoSend/>
-                            </i>
+                            message === "" ? "" :
+                                <i className={"text-green-500 text-[20px] mr-5 cursor-pointer"} onClick={hitRequest}>
+                                    <IoSend/>
+                                </i>
                         }
                     </div>
                     <p className={"text-[gray] text-[14px] my-4"}>Smart Talk is developed by <a
@@ -96,3 +139,5 @@ const App: React.FC = () => {
     )
 }
 export default App
+
+
