@@ -1,180 +1,184 @@
-import React, {useState} from 'react'
-import "./App.css"
-import {IoCodeSlash, IoSend} from "react-icons/io5";
-import {BiPlanet} from "react-icons/bi";
-import {FaPython} from "react-icons/fa";
-import {TbMessageChatbot} from "react-icons/tb";
-import {GoogleGenerativeAI} from "@google/generative-ai"
+import React, {useState} from 'react';
+import './App.css';
+import {IoCodeSlash, IoSend} from 'react-icons/io5';
+import {BiPlanet} from 'react-icons/bi';
+import {FaPython} from 'react-icons/fa';
+import {TbMessageChatbot} from 'react-icons/tb';
+import {GoogleGenerativeAI} from '@google/generative-ai';
 import {Remarkable} from 'remarkable';
-import hljs from "highlight.js"
-
-interface IAnswer {
-    type: string;
-    text: string;
-}
+import hljs from 'highlight.js';
+import 'highlight.js/styles/atom-one-dark.css';
 
 const App: React.FC = () => {
-    const md = new Remarkable("full", {
+    // Markdown parser configuration
+    const md = new Remarkable({
         highlight: function (str, lang) {
+            let highlightedCode = '';
             if (lang && hljs.getLanguage(lang)) {
                 try {
-                    return hljs.highlight(lang, str).value;
+                    highlightedCode = hljs.highlight(str, {language: lang}).value;
                 } catch (err) {
-                    console.log(err)
+                    console.error('Error highlighting with specified language:', err);
+                }
+            } else {
+                try {
+                    highlightedCode = hljs.highlightAuto(str).value;
+                } catch (err) {
+                    console.error('Error highlighting automatically:', err);
                 }
             }
 
-            try {
-                return hljs.highlightAuto(str).value;
-            } catch (err) {
-                console.log(err)
-            }
-
-            return ''; // use external default escaping
+            return `
+        <div className="code-container">
+          <button className="copy-btn" onClick={copyCode(this)}>Copy</button>
+          <pre><code className="hljs">${highlightedCode}</code></pre>
+        </div>
+      `;
         },
         html: true,
         typographer: true,
         breaks: true,
         linkify: true,
         xhtmlOut: true,
-        quotes: '“”‘’',
-        linkTarget: '_blank',
-        langPrefix: 'language-',
     });
-    const [message, setMessage] = useState<string>("");
-    const [isResponseScreen, setIsResponseScreen] = useState<boolean>(false);
-    const [response, setResponse] = useState<IAnswer[]>([]);
 
-    const generateResponse = async (message: string) => {
-        const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({model: "gemini-1.5-flash"});
-        const result = await model.generateContent(message);
-        const newResponses = [
-            ...response,
-            {
-                type: "userMsg",
-                text: message,
-            }, {
-                type: "response",
-                text: result.response.text(),
-            }
-        ];
-        setResponse(newResponses);
-        setIsResponseScreen(true);
-        setMessage("");
-        console.log(result.response.text());
-    };
-    const hitRequest = () => {
-        if (message) {
-            generateResponse(message);
-        } else {
-            alert("message empty!!!!")
+    // Define state
+    const [message, setMessage] = useState<string>('');
+    const [isResponseScreen, setIsResponseScreen] = useState<boolean>(false);
+    const [response, setResponse] = useState<{ type: 'userMsg' | 'response'; text: string }[]>([]);
+
+    // Suggestion list
+    const suggestions = [
+        {text: 'What is coding? How can we learn it?', Icon: <IoCodeSlash/>},
+        {text: 'What is the red planet of our solar system?', Icon: <BiPlanet/>},
+        {text: 'In which year was Python invented?', Icon: <FaPython/>},
+        {text: 'How can we use AI for adoption?', Icon: <TbMessageChatbot/>},
+    ];
+
+    // Copy code block function
+    const copyCode = (btn: HTMLElement) => {
+        const codeBlock = btn.nextElementSibling?.querySelector('code')?.textContent;
+        if (codeBlock) {
+            navigator.clipboard.writeText(codeBlock).then(() => {
+                btn.textContent = 'Copied!';
+                setTimeout(() => (btn.textContent = 'Copy'), 2000); // Reset button text after 2 seconds
+            });
         }
-    }
-    const newChat = () => {
+    };
+
+    (window as unknown as { copyCode: (btn: HTMLElement) => void }).copyCode = copyCode;
+    // Generate response
+    const generateResponse = async (message: string) => {
+        try {
+            const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+            const model = genAI.getGenerativeModel({model: 'gemini-1.5-flash'});
+            const result = await model.generateContent(message);
+
+            setResponse((prev) => [
+                ...prev,
+                {type: 'userMsg', text: message},
+                {type: 'response', text: result.response.text()},
+            ]);
+            setIsResponseScreen(true);
+            setMessage('');
+        } catch (error) {
+            console.error('Error generating response:', error);
+            alert('Failed to generate a response. Please try again.');
+        }
+    };
+
+    // Event handlers
+    const handleSendMessage = () => {
+        if (message.trim()) generateResponse(message.trim()).then(r =>
+            console.log(r)
+        );
+        else alert('Message cannot be empty!');
+    };
+
+    const startNewChat = () => {
         setIsResponseScreen(false);
-        setMessage("");
+        setMessage('');
         setResponse([]);
     };
 
-    const suggestions = [
-        {
-            text: `what is coding?<br/> how can we learn it.`,
-            Icon: <IoCodeSlash/>
-        },
-        {
-            text: ` what is the red?<br/>planet of solar<br/>system?`,
-            Icon: <BiPlanet/>
-        },
-        {
-            text: ` In which year python<br/>was invented?`,
-            Icon: <FaPython/>
-        },
-        {
-            text: `How can we can use<br/>the AI for adopt?`,
-            Icon: <TbMessageChatbot/>
-        },
-    ]
-
+    // JSX structure
     return (
-        <>
-            <main className={"container  min-w-full min-h-screen overflow-x-hidden bg-[#0E0E0E] text-white"}>
-                {
-                    isResponseScreen ?
-                        <section className={"min-h-[80vh]"}>
+        <main className="container min-w-full min-h-screen overflow-x-hidden bg-[#0E0E0E] text-white">
+            {/* Main Content */}
+            {isResponseScreen ? (
+                <section className="min-h-[80vh]">
+                    {/* Header */}
+                    <header className="header flex items-center justify-between w-full h-[20vh] px-[300px]">
+                        <h2 className="text-2xl">Smart Talk</h2>
+                        <button
+                            className="bg-[#181818] px-6 py-2 rounded-full cursor-pointer text-sm"
+                            onClick={startNewChat}
+                        >
+                            New Chat
+                        </button>
+                    </header>
+
+                    {/* Messages */}
+                    <div className="message">
+                        {response.map((msg, index) => (
                             <div
-                                className={"header flex items-center justify-between w-[100vw] h-[20vh]  px-[300px]"}>
-                                <h2 className={"text-2xl"}>
-                                    Smart Talk
-                                </h2>
-                                <button
-                                    className={"bg-[#181818] p-[10px] rounded-[30px] cursor-pointer text-[14px] px-[20px]"}
-                                    onClick={newChat}
-                                    id={"newChatBtn"}>New Chat
-                                </button>
-                            </div>
-                            <div className={"message"}>
-                                {
-                                    response?.map((msg, index) => {
-                                        return (
-                                            <div key={index} className={`${msg.type}`}
-                                                 dangerouslySetInnerHTML={{__html: md.render(msg.text)}}/>
-                                        )
-                                    })
-                                }
-                            </div>
-
-                        </section> :
-                        <section className={"middle min-h-[80vh] flex items-center justify-center flex-col"}>
-                            <h2 className={"text-4xl"}>Smart Talk </h2>
-                            <div className={"boxes mt-[30px] gap-2"}>
-                                {
-                                    suggestions?.map((suggestion, index) => {
-                                        return (
-                                            <div
-                                                key={index}
-                                                onClick={() => setMessage(suggestion.text.split(`<br/>`).join(" "))}
-                                                className={"card rounded-lg px-[20px] relative min-h-[20vh] bg-[#181818] p-[10px] cursor-pointer transition-all hover:bg-[#201f1f] duration-300"}>
-                                                <p className={"text-[18px]"}>
-                                                    {suggestion.text}
-                                                </p>
-                                                <i className={"absolute right-3 bottom-3 text-[18px]"}>{suggestion.Icon}</i>
-                                            </div>
-
-                                        )
-                                    })
-                                }
-                            </div>
-                        </section>
-                }
-                <section className={"bottom w-full flex flex-col justify-center items-center"}>
-                    <div
-                        className={"inputBox flex items-center bg-[#181818] rounded-[30px] w-[60%] text-[15px] py-[7px]"}>
-                        <input
-                            value={message}
-                            type={"text"}
-                            placeholder={"Write your message here..."}
-                            id={"messageBox"}
-                            className={"p-[10px] bg-transparent flex-1 outline-0 border-none text-white pl-[15px]"}
-                            onChange={(e) => setMessage(e.target.value)}
-                        />
-                        {
-                            message === "" ? "" :
-                                <i className={"text-green-500 text-[20px] mr-5 cursor-pointer"} onClick={hitRequest}>
-                                    <IoSend/>
-                                </i>
-                        }
+                                key={index}
+                                className={msg.type}
+                                dangerouslySetInnerHTML={{__html: md.render(msg.text)}}
+                            />
+                        ))}
                     </div>
-                    <p className={"text-[gray] text-[14px] my-4"}>Smart Talk is developed by <a
-                        href={"https://linkedin.com/in/aryankumarofficial"} target={"_blank"}>Aryan Kumar</a>. this AI
-                        use the gemini API for giving
-                        the
-                        response </p>
                 </section>
-            </main>
-        </>
-    )
-}
-export default App
+            ) : (
+                <section className="middle min-h-[80vh] flex items-center justify-center flex-col">
+                    <h2 className="text-4xl">Smart Talk</h2>
+                    <div className="boxes mt-8 flex gap-4">
+                        {suggestions.map((suggestion, index) => (
+                            <div
+                                key={index}
+                                onClick={() => setMessage(suggestion.text)}
+                                className="card bg-[#181818] p-4 rounded-lg cursor-pointer hover:bg-[#201f1f] transition-all duration-300 min-h-[20vh] flex flex-col justify-between"
+                            >
+                                <p className="text-lg">{suggestion.text}</p>
+                                <span className="text-2xl self-end">{suggestion.Icon}</span>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            )}
 
+            {/* Footer */}
+            <footer className="bottom w-full flex flex-col justify-center items-center py-4">
+                <div className="inputBox flex items-center bg-[#181818] rounded-full w-[60%] py-2 px-4">
+                    <input
+                        value={message}
+                        type="text"
+                        placeholder="Write your message here..."
+                        className="flex-1 bg-transparent text-white outline-none placeholder-gray-500"
+                        onChange={(e) => setMessage(e.target.value)}
+                    />
+                    {message && (
+                        <IoSend
+                            className="text-green-500 text-2xl cursor-pointer ml-4"
+                            onClick={handleSendMessage}
+                        />
+                    )}
+                </div>
+                <p className="text-gray-400 text-sm mt-4">
+                    Smart Talk is developed by{' '}
+                    <a
+                        href="https://linkedin.com/in/aryankumarofficial"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline"
+                    >
+                        Aryan Kumar
+                    </a>
+                    . This AI uses the Gemini API to generate responses.
+                </p>
+            </footer>
+        </main>
+    );
+};
 
+export default App;

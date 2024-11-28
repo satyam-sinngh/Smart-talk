@@ -18,69 +18,155 @@ html {
     @apply container mx-[10rem] grid grid-flow-row grid-cols-2;
 }
 
+/* General Styling for Response Container */
 .message {
     display: flex;
     flex-direction: column;
-    padding: 0 300px;
+    padding: 0 15%; /* Adjust padding for proper alignment */
+    gap: 15px; /* Reduced gap between messages for a more compact view */
+    max-width: 100%;
+    overflow-y: auto; /* Enable scrolling for long content */
+    max-height: 75vh; /* Limit the height of the response container */
 }
 
+/* User Messages */
 .message .userMsg {
-    clear: both;
-    background-color: #181818;
-    padding: 15px;
-    border-radius: 30px;
-    max-width: 60vw;
     align-self: flex-end;
-    min-width: 20vw;
-    margin: 10px 0;
-}
-
-/* beautify the scroller of response container*/
-
-.message .response {
-    clear: both;
     background-color: #181818;
+    color: #e0e0e0;
     padding: 15px;
-    border-radius: 30px;
-    max-width: 60vw;
-    align-self: flex-start;
-    min-width: 20vw;
-    margin: 10px 0;
+    border-radius: 20px 20px 0 20px; /* Rounded corners */
+    max-width: 70%;
+    min-width: 25%;
+    font-size: 16px;
     line-height: 1.5;
-    text-align: justify;
-    overflow-x: scroll;
-    overflow-y: scroll;
-    max-height: 300px;
+    margin: 5px 0; /* Minimized margin for compact design */
+    word-wrap: break-word;
+    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.4);
 }
 
-.message .response::-webkit-scrollbar {
-    width: 10px;
-    height: 0;
-}
-
-.message .response::-webkit-scrollbar-button {
-    display: none;
-}
-
-.message .response::-webkit-scrollbar-corner {
-    display: none;
-}
-
-.message .response::-webkit-scrollbar-track-piece {
-    display: none;
-}
-
-.message .response::-webkit-scrollbar-thumb {
-    background-color: #888;
-    border-radius: 10px;
-}
-
-.message .response::-webkit-scrollbar-track {
+/* AI Response */
+.message .response {
+    align-self: flex-start;
     background-color: #181818;
-    border-radius: 10px;
-    width: 10px;
+    color: #e0e0e0;
+    padding: 15px;
+    border-radius: 20px 20px 20px 0;
+    max-width: 70%;
+    min-width: 25%;
+    font-size: 16px;
+    line-height: 1.5;
+    margin: 5px 0;
+    word-wrap: break-word;
+    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.4);
 }
 
-.message .response::-webkit-scrollbar-thumb:hover {
-    background-color: #555;
+/* Code Blocks Inside AI Responses */
+.message .response pre {
+    background: #292929; /* Subtle background color for code blocks */
+    color: #e0e0e0;
+    padding: 10px 15px; /* Reduced padding for compact design */
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    line-height: 1.4; /* Slightly tighter line height */
+    overflow-x: auto; /* Enable horizontal scroll for code */
+    margin: 10px 0; /* Minimized margin between code and text */
+    white-space: pre-wrap; /* Wraps long lines */
+    word-wrap: break-word;
+    position: relative;
+    border: none;
+    @apply rounded-lg border border-gray-300 bg-gray-800;
+
+}
+
+.message .response pre code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #e0e0e0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Highlight.js Styling for Code */
+.hljs {
+    background: transparent; /* Ensure background matches parent */
+    color: #e0e0e0; /* Code text color */
+    padding: 10px; /* Padding inside code block */
+    font-size: 14px; /* Adjust font size for consistency */
+    line-height: 1.4; /* Tighter line spacing for better readability */
+    overflow-x: auto; /* Horizontal scroll for long code lines */
+    margin: 5px 0; /* Reduce margin to minimize gap with text */
+    word-wrap: break-word;
+    @apply rounded-lg border border-none bg-gray-800 p-4 shadow-lg;
+
+}
+
+.code-container {
+    position: relative;
+    display: inline-block;
+    margin: -50px 0;
+    padding: 0;
+    /*border: 1px solid #ccc;*/
+}
+
+/* Copy Button for Code Blocks */
+.message .response pre .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #333;
+    color: #FFF;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: all 0.3s ease;
+}
+
+.message .response pre .copy-btn:hover {
+    background: #555;
+    opacity: 1;
+}
+
+/* Smooth Entry Animation */
+.message .userMsg,
+.message .response {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .message {
+        padding: 0 10%;
+    }
+
+    .message .userMsg,
+    .message .response {
+        max-width: 85%;
+    }
+}
+
+@media (max-width: 480px) {
+    .message {
+        padding: 0 5%;
+    }
+
+    .message .userMsg,
+    .message .response {
+        max-width: 95%;
+    }
 }
