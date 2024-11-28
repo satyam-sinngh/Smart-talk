@@ -42,6 +42,11 @@ const App: React.FC = () => {
             alert("message empty!!!!")
         }
     }
+    const newChat = () => {
+        setIsResponseScreen(false);
+        setMessage("");
+        setResponse([]);
+    };
     return (
         <>
             <main className={"container  min-w-full min-h-screen overflow-x-hidden bg-[#0E0E0E] text-white"}>
@@ -55,6 +60,7 @@ const App: React.FC = () => {
                                 </h2>
                                 <button
                                     className={"bg-[#181818] p-[10px] rounded-[30px] cursor-pointer text-[14px] px-[20px]"}
+                                    onClick={newChat}
                                     id={"newChatBtn"}>New Chat
                                 </button>
                             </div>
