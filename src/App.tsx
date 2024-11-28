@@ -47,6 +47,26 @@ const App: React.FC = () => {
         setMessage("");
         setResponse([]);
     };
+
+    const suggestions = [
+        {
+            text: `what is coding?<br/> how can we learn it.`,
+            Icon: <IoCodeSlash/>
+        },
+        {
+            text: ` what is the red?<br/>planet of solar<br/>system?`,
+            Icon: <BiPlanet/>
+        },
+        {
+            text: ` In which year python<br/>was invented?`,
+            Icon: <FaPython/>
+        },
+        {
+            text: `How can we can use<br/>the AI for adopt?`,
+            Icon: <TbMessageChatbot/>
+        },
+    ]
+
     return (
         <>
             <main className={"container  min-w-full min-h-screen overflow-x-hidden bg-[#0E0E0E] text-white"}>
@@ -72,47 +92,28 @@ const App: React.FC = () => {
                                         )
                                     })
                                 }
-                                {/*<div className={"userMsg"}>What does server rendering means?</div>*/}
-                                {/*<div className={"response"}>What does server rendering means?</div>*/}
                             </div>
 
                         </section> :
                         <section className={"middle min-h-[80vh] flex items-center justify-center flex-col"}>
                             <h2 className={"text-4xl"}>Smart Talk </h2>
-                            <div className={"boxes mt-[30px] flex items-center gap-2"}>
-                                <div
-                                    className={"card rounded-lg px-[20px] relative min-h-[20vh] bg-[#181818] p-[10px] cursor-pointer transition-all hover:bg-[#201f1f] duration-300"}>
-                                    <p className={"text-[18px]"}>
-                                        what is coding?<br/>
-                                        how can we learn it.
-                                    </p>
-                                    <i className={"absolute right-3 bottom-3 text-[18px]"}><IoCodeSlash/></i>
-                                </div>
-                                <div
-                                    className={"card rounded-lg px-[20px] relative min-h-[20vh] bg-[#181818] p-[10px] cursor-pointer transition-all hover:bg-[#201f1f] duration-300"}>
-                                    <p className={"text-[18px]"}>
-                                        what is the red?<br/>
-                                        planet of solar<br/>
-                                        system?
-                                    </p>
-                                    <i className={"absolute right-3 bottom-3 text-[18px]"}><BiPlanet/></i>
-                                </div>
-                                <div
-                                    className={"card rounded-lg px-[20px] relative min-h-[20vh] bg-[#181818] p-[10px] cursor-pointer transition-all hover:bg-[#201f1f] duration-300"}>
-                                    <p className={"text-[18px]"}>
-                                        In which year python<br/>
-                                        was invented?
-                                    </p>
-                                    <i className={"absolute right-3 bottom-3 text-[18px]"}><FaPython/></i>
-                                </div>
-                                <div
-                                    className={"card rounded-lg px-[20px] relative min-h-[20vh] bg-[#181818] p-[10px] cursor-pointer transition-all hover:bg-[#201f1f] duration-300"}>
-                                    <p className={"text-[18px]"}>
-                                        How can we can use<br/>
-                                        the AI for adopt?
-                                    </p>
-                                    <i className={"absolute right-3 bottom-3 text-[18px]"}><TbMessageChatbot/></i>
-                                </div>
+                            <div className={"boxes mt-[30px] gap-2"}>
+                                {
+                                    suggestions?.map((suggestion, index) => {
+                                        return (
+                                            <div
+                                                key={index}
+                                                onClick={() => setMessage(suggestion.text.split(`<br/>`).join(" "))}
+                                                className={"card rounded-lg px-[20px] relative min-h-[20vh] bg-[#181818] p-[10px] cursor-pointer transition-all hover:bg-[#201f1f] duration-300"}>
+                                                <p className={"text-[18px]"}>
+                                                    {suggestion.text}
+                                                </p>
+                                                <i className={"absolute right-3 bottom-3 text-[18px]"}>{suggestion.Icon}</i>
+                                            </div>
+
+                                        )
+                                    })
+                                }
                             </div>
                         </section>
                 }
