@@ -5,6 +5,8 @@ import {BiPlanet} from "react-icons/bi";
 import {FaPython} from "react-icons/fa";
 import {TbMessageChatbot} from "react-icons/tb";
 import {GoogleGenerativeAI} from "@google/generative-ai"
+import {Remarkable} from 'remarkable';
+import hljs from "highlight.js"
 
 interface IAnswer {
     type: string;
@@ -12,6 +14,33 @@ interface IAnswer {
 }
 
 const App: React.FC = () => {
+    const md = new Remarkable("full", {
+        highlight: function (str, lang) {
+            if (lang && hljs.getLanguage(lang)) {
+                try {
+                    return hljs.highlight(lang, str).value;
+                } catch (err) {
+                    console.log(err)
+                }
+            }
+
+            try {
+                return hljs.highlightAuto(str).value;
+            } catch (err) {
+                console.log(err)
+            }
+
+            return ''; // use external default escaping
+        },
+        html: true,
+        typographer: true,
+        breaks: true,
+        linkify: true,
+        xhtmlOut: true,
+        quotes: '“”‘’',
+        linkTarget: '_blank',
+        langPrefix: 'language-',
+    });
     const [message, setMessage] = useState<string>("");
     const [isResponseScreen, setIsResponseScreen] = useState<boolean>(false);
     const [response, setResponse] = useState<IAnswer[]>([]);
@@ -88,7 +117,8 @@ const App: React.FC = () => {
                                 {
                                     response?.map((msg, index) => {
                                         return (
-                                            <div key={index} className={`${msg.type}`}>{msg.text}</div>
+                                            <div key={index} className={`${msg.type}`}
+                                                 dangerouslySetInnerHTML={{__html: md.render(msg.text)}}/>
                                         )
                                     })
                                 }
