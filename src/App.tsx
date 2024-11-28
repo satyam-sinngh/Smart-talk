@@ -29,9 +29,9 @@ const App: React.FC = () => {
             }
 
             return `
-        <div className="code-container">
-          <button className="copy-btn" onClick={copyCode(this)}>Copy</button>
-          <pre><code className="hljs">${highlightedCode}</code></pre>
+        <div class="code-container">
+          <button class="copy-btn " onclick="copyCode(this)">Copy</button>
+          <pre><code class="hljs">${highlightedCode}</code></pre>
         </div>
       `;
         },
@@ -168,7 +168,14 @@ const App: React.FC = () => {
                         value={message}
                         type="text"
                         placeholder="Write your message here..."
-                        className="flex-1 bg-transparent text-white outline-none placeholder-gray-500 text-lg focus:placeholder-transparent focus:ring-0 focus:border-0 focus:outline-none focus:bg-transparent focus:text-white transition-all duration-300"
+                        className="flex-1 bg-transparent text-white outline-none placeholder-gray-500 text-lg focus:placeholder-transparent focus:ring-0 focus:border-0 focus:outline-none focus:bg-transparent focus:text-white transition-all duration-300 min-h-10"
+                        onKeyUp={(e) => {
+                            if (e.key === 'Enter') {
+                                handleSendMessage()
+                            } else if (e.key === 'es') {
+                                startNewChat();
+                            }
+                        }}
                         onChange={(e) => setMessage(e.target.value)}
                     />
                     {loading ? (
