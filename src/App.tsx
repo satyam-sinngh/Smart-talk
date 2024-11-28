@@ -42,12 +42,13 @@ const App: React.FC = () => {
         xhtmlOut: true,
     });
 
-    // Define state
+    // State
     const [message, setMessage] = useState<string>('');
     const [isResponseScreen, setIsResponseScreen] = useState<boolean>(false);
     const [response, setResponse] = useState<{ type: 'userMsg' | 'response'; text: string }[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
 
-    // Suggestion list
+    // Suggestions
     const suggestions = [
         {text: 'What is coding? How can we learn it?', Icon: <IoCodeSlash/>},
         {text: 'What is the red planet of our solar system?', Icon: <BiPlanet/>},
@@ -55,20 +56,22 @@ const App: React.FC = () => {
         {text: 'How can we use AI for adoption?', Icon: <TbMessageChatbot/>},
     ];
 
-    // Copy code block function
+    // Copy code block
     const copyCode = (btn: HTMLElement) => {
         const codeBlock = btn.nextElementSibling?.querySelector('code')?.textContent;
         if (codeBlock) {
             navigator.clipboard.writeText(codeBlock).then(() => {
                 btn.textContent = 'Copied!';
-                setTimeout(() => (btn.textContent = 'Copy'), 2000); // Reset button text after 2 seconds
+                setTimeout(() => (btn.textContent = 'Copy'), 2000);
             });
         }
     };
 
     (window as unknown as { copyCode: (btn: HTMLElement) => void }).copyCode = copyCode;
+
     // Generate response
     const generateResponse = async (message: string) => {
+        setLoading(true);
         try {
             const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
             const model = genAI.getGenerativeModel({model: 'gemini-1.5-flash'});
@@ -84,15 +87,18 @@ const App: React.FC = () => {
         } catch (error) {
             console.error('Error generating response:', error);
             alert('Failed to generate a response. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
     // Event handlers
     const handleSendMessage = () => {
-        if (message.trim()) generateResponse(message.trim()).then(r =>
-            console.log(r)
-        );
-        else alert('Message cannot be empty!');
+        if (message.trim()) {
+            generateResponse(message.trim());
+        } else {
+            alert('Message cannot be empty!');
+        }
     };
 
     const startNewChat = () => {
@@ -111,7 +117,7 @@ const App: React.FC = () => {
                     <header className="header flex items-center justify-between w-full h-[20vh] px-[300px]">
                         <h2 className="text-2xl">Smart Talk</h2>
                         <button
-                            className="bg-[#181818] px-6 py-2 rounded-full cursor-pointer text-sm"
+                            className="bg-[#181818] px-6 py-2 rounded-full cursor-pointer text-sm text-white hover:bg-[#201f1f] transition-all duration-300 shadow-lg hover:shadow-xl active:shadow-none focus:outline-none"
                             onClick={startNewChat}
                         >
                             New Chat
@@ -120,13 +126,21 @@ const App: React.FC = () => {
 
                     {/* Messages */}
                     <div className="message">
-                        {response.map((msg, index) => (
-                            <div
-                                key={index}
-                                className={msg.type}
-                                dangerouslySetInnerHTML={{__html: md.render(msg.text)}}
-                            />
-                        ))}
+                        {loading ? (
+                            <div className="flex flex-col items-center mt-8">
+                                <div
+                                    className="loader animate-spin rounded-full h-12 w-12 border-t-4 border-green-500"></div>
+                                <p className="text-lg mt-4 text-gray-400">Thinking... Generating response...</p>
+                            </div>
+                        ) : (
+                            response.map((msg, index) => (
+                                <div
+                                    key={index}
+                                    className={msg.type}
+                                    dangerouslySetInnerHTML={{__html: md.render(msg.text)}}
+                                />
+                            ))
+                        )}
                     </div>
                 </section>
             ) : (
@@ -154,14 +168,18 @@ const App: React.FC = () => {
                         value={message}
                         type="text"
                         placeholder="Write your message here..."
-                        className="flex-1 bg-transparent text-white outline-none placeholder-gray-500"
+                        className="flex-1 bg-transparent text-white outline-none placeholder-gray-500 text-lg focus:placeholder-transparent focus:ring-0 focus:border-0 focus:outline-none focus:bg-transparent focus:text-white transition-all duration-300"
                         onChange={(e) => setMessage(e.target.value)}
                     />
-                    {message && (
-                        <IoSend
-                            className="text-green-500 text-2xl cursor-pointer ml-4"
-                            onClick={handleSendMessage}
-                        />
+                    {loading ? (
+                        <span className="text-green-500 text-2xl ml-4 animate-spin">⏳</span>
+                    ) : (
+                        message && (
+                            <IoSend
+                                className="text-green-500 text-2xl cursor-pointer ml-4"
+                                onClick={handleSendMessage}
+                            />
+                        )
                     )}
                 </div>
                 <p className="text-gray-400 text-sm mt-4">
