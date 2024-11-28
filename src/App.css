@@ -14,3 +14,28 @@ html {
     overflow-x: hidden;
 }
 
+.message {
+    display: flex;
+    flex-direction: column;
+    padding: 0 300px;
+}
+
+.message .userMsg {
+    clear: both;
+    background-color: #181818;
+    padding: 15px;
+    border-radius: 30px;
+    max-width: 60vw;
+    align-self: flex-end;
+    min-width: 20vw;
+}
+
+.message .response {
+    clear: both;
+    background-color: #181818;
+    padding: 15px;
+    border-radius: 30px;
+    max-width: 60vw;
+    align-self: flex-start;
+    min-width: 20vw;
+}
