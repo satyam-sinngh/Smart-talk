@@ -192,12 +192,12 @@ const App: React.FC = () => {
                 <p className="text-gray-400 text-sm mt-4">
                     Smart Talk is developed by{' '}
                     <a
-                        href="https://linkedin.com/in/aryankumarofficial"
+                        href="https://www.linkedin.com/in/satyam-kumar-793b20250/"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="underline"
                     >
-                        Aryan Kumar
+                        Satyam Kumar
                     </a>
                     . This AI uses the Gemini API to generate responses.
                 </p>
